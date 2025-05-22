@@ -1,0 +1,58 @@
+version: '3.9'
+
+services:
+  backend:
+    build: .
+    container_name: cmpc-backend
+    restart: always
+    ports:
+      - '4000:4000'
+    depends_on:
+      - db
+    environment:
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=postgres
+      - DB_NAME=cmpc
+      - JWT_SECRET=secret123
+    env_file:
+      - .env
+    networks:
+      - cmpc-network
+
+  db:
+    image: postgres:15
+    container_name: cmpc-db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: cmpc
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - '5432:5432'
+    networks:
+      - cmpc-network
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: cmpc-pgadmin
+    restart: always
+    ports:
+      - '8080:80'
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@cmpc.cl
+      PGADMIN_DEFAULT_PASSWORD: admin123
+    depends_on:
+      - db
+    networks:
+      - cmpc-network
+
+volumes:
+  postgres-data:
+
+networks:
+  cmpc-network:
+    driver: bridge
