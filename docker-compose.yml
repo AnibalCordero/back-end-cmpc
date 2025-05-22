@@ -3,25 +3,15 @@ version: '3.9'
 services:
   backend:
     build: .
-    command: > 
-     sh -c "
-      npx sequelize-cli db:migrate &&
-      npx sequelize-cli db:seed:all &&
-      npm run start:prod
-     "
     container_name: cmpc-backend
     restart: always
+    command: npm run start:prod
     ports:
       - '4000:4000'
     depends_on:
       - db
-    environment:
-      - DB_HOST=db
-      - DB_PORT=5432
-      - DB_USERNAME=postgres
-      - DB_PASSWORD=postgres
-      - DB_NAME=cmpc
-      - JWT_SECRET=secret123
+    volumes:
+      - .:/app
     env_file:
       - .env
     networks:
@@ -53,6 +43,30 @@ services:
       PGADMIN_DEFAULT_PASSWORD: admin123
     depends_on:
       - db
+    networks:
+      - cmpc-network
+
+  migrate:
+    build: .
+    command: npx sequelize-cli db:migrate
+    depends_on:
+      - db
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    networks:
+      - cmpc-network
+
+  seed:
+    build: .
+    command: npx sequelize-cli db:seed:all
+    depends_on:
+      - db
+    volumes:
+      - .:/app
+    env_file:
+      - .env
     networks:
       - cmpc-network
 
