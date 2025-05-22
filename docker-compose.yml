@@ -3,6 +3,12 @@ version: '3.9'
 services:
   backend:
     build: .
+    command: > 
+     sh -c "
+      npx sequelize-cli db:migrate &&
+      npx sequelize-cli db:seed:all &&
+      npm run start:prod
+     "
     container_name: cmpc-backend
     restart: always
     ports:
